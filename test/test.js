@@ -11,7 +11,8 @@ const sequelize = models.sequelize;
 const should = chai.should();
 chai.use(chaiHttp);
 
-
+// Force sync all models
+//sequelize.sync({force: true})
 
 /**
  *  Scenario: Count Me Up should setup new poll
@@ -272,5 +273,18 @@ describe('Scenario: Count Me Up only accepts 3 votes per user regardless of cand
 
 
 describe('Scenario: Count Me Up returns the voting results', () => {
+
+  const setup = chai
+    .request(server)
+    .get('/api/poll/1')
+
+  const successResponseTest = (done) => (err, res) => {
+    res.body.should.be.a('object');
+    if(done) done();
+  }
+
+  it('Should create a new poll', (done) => {
+    setup.end(successResponseTest(done));
+  });
 
 });

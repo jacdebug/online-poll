@@ -22,7 +22,13 @@ Object.keys(db).forEach(modelName => {
   }
 });
 
+db.polls.hasMany(db.polls_candidates_total, {foreignKey: 'polls_id'});
+db.polls_candidates_total.belongsTo(db.polls, {foreignKey: 'polls_id'});
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+// Sync all models that aren't already in the database
+sequelize.sync();
 
 module.exports = db;
