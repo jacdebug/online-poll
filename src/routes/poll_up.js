@@ -19,33 +19,35 @@ const sequelize = models.sequelize;
 //add new route
 router.post('/', function(req, res) {
 
-  getVoter(req.body.email)
-    .spread(voter =>  {
-      return getVoterCount(voter.id, req.body.poll_id)
-    })
-    .spread(voterCount => {
+  sequelize.transaction().then(t => {
 
-      if(voterCount.voted < 3) {
-        getCandidateTotal(req)
-          .spread(candidate =>
-            sequelize.transaction(updateVote(voterCount, candidate))
-          );
-      }
-      else {
-        throw('Error: max limit exceded');
-      }
-
-    }).then(result => {
-      res.status(201).json({
-        statusText: 'sucess',
-        result: result
+    getVoter(req.body.email, t)
+      .spread(voter =>  {
+        return getVoterCount(voter.id, req.body.poll_id, t)
+      })
+      .spread(voterCount => {
+        if(voterCount.voted < 3) {
+          getCandidateTotal(req, t)
+            .spread(candidate => updateVote(voterCount, candidate, t))
+            .then(result => {
+                res.status(201).json({
+                  statusText: 'sucess',
+                  result: result
+                });
+                return t.commit();
+              })
+        }
+        else {
+          throw('Error more than three times voted !!');
+        }
+      }).catch(err => {
+        res.status(403).json({
+          statusText: 'fail',
+          err: err
+        });
+        return t.rollback();
       });
 
-    }).catch(err => {
-      res.status(403).json({
-        statusText: 'fail',
-        err: err
-      });
     });
 
 });
@@ -55,41 +57,45 @@ router.post('/', function(req, res) {
 //helper fucntions
 //TODO: refactor and move to models
 
-function getVoter(email) {
+function getVoter(email, t) {
   return models.voters.findOrCreate({
-    where: { email: email }
+    where: { email: email },
+    defaults: {},
+    transaction: t
   });
 }
 
-function getVoterCount(voterId, pollId) {
+function getVoterCount(voterId, pollId, t) {
   return models.voters_vote_count.findOrCreate({
     where: {
       polls_id: pollId,
       voters_id: voterId
-    }
+    },
+    defaults: {},
+    transaction: t
   });
 }
 
-function getCandidateTotal(req) {
+function getCandidateTotal(req, t) {
   return models.polls_candidates_total.findOrCreate({
     where: {
       polls_id: req.body.poll_id,
       candidates_id: req.body.candidate_id
     },
+    defaults: {},
+    transaction: t
   });
 }
 
-function updateVote(voterCount, candidate) {
-  return function(t) {
-    return Promise.all([
-      voterCount.update({
-        voted: sequelize.literal('voted +1')
-      }, {transaction: t}),
-      candidate.update({
-        total: sequelize.literal('total +1')
-      }, {transaction: t})
-    ]);
-  }
+function updateVote(voterCount, candidate, t) {
+  return Promise.all([
+    voterCount.update({
+      voted: sequelize.literal('voted +1')
+    }, {transaction: t}),
+    candidate.update({
+      total: sequelize.literal('total +1')
+    }, {transaction: t})
+  ]);
 }
 
 module.exports = router;

@@ -279,11 +279,11 @@ describe('Scenario: Count Me Up returns the voting results', () => {
     .get('/api/poll/1')
 
   const successResponseTest = (done) => (err, res) => {
-    res.body.should.be.a('object');
+    res.body.should.be.a('array');
     if(done) done();
   }
 
-  it('Should create a new poll', (done) => {
+  it('Should retrun poll data', (done) => {
     setup.end(successResponseTest(done));
   });
 
