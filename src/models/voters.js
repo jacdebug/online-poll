@@ -8,7 +8,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     email: {
       type: DataTypes.STRING(45),
-      allowNull: true
+      allowNull: false
     }
   }, {
     tableName: 'voters'

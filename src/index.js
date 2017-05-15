@@ -4,8 +4,8 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const routeCandidate = require('./routes/candidate');
 const poll = require('./routes/poll');
-const poll_up = require('./routes/poll_new');
-const poll_new = require('./routes/poll_up');
+const poll_new = require('./routes/poll_new');
+const poll_up = require('./routes/poll_up');
 const voter = require('./routes/voter');
 const config = require('./config.json');
 const app = express();
@@ -24,9 +24,11 @@ app.use(bodyParser.json({
 app.use('/api/candidate', routeCandidate);
 app.use('/api/poll', poll);
 app.use('/api/voter', voter);
-app.use('/api/poll/', poll_up);
+app.use('/api/poll/up', poll_up);
 app.use('/api/poll/create', poll_new);
 
 
 app.listen(config.port);
 console.log(`Started on port ${app.address}`);
+
+module.exports = app;

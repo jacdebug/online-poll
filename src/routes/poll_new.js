@@ -23,8 +23,7 @@ const router = express.Router();
 router.post('/', function(req, res) {
 
   const promisesCandidates = req.body.candidates
-    .map(candidate => models.candidates
-    .create({
+    .map(candidate => models.candidates.create({
       name: candidate.name
     }));
 
@@ -46,8 +45,10 @@ router.post('/', function(req, res) {
       );
 
        Promise.all(promises).then(() => {
-        res.json({
-          'message': 'new poll created'
+        res.status(201).json({
+          'message': 'new poll created',
+          result: result,
+          candidatesIds: candidatesIds
         });
        });
 

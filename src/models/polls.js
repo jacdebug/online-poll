@@ -16,7 +16,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     title: {
       type: DataTypes.STRING(45),
-      allowNull: true
+      allowNull: false
     }
   }, {
     tableName: 'polls'

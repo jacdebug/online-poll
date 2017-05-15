@@ -21,7 +21,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     total: {
       type: DataTypes.BIGINT,
-      allowNull: true
+      defaultValue: 0
     }
   }, {
     tableName: 'polls_candidates_total'

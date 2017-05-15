@@ -36,7 +36,7 @@ router.post('/', function(req, res) {
       }
 
     }).then(result => {
-      res.json({
+      res.status(201).json({
         statusText: 'sucess',
         result: result
       });
