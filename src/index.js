@@ -9,6 +9,7 @@ const poll_up = require('./routes/poll_up');
 const voter = require('./routes/voter');
 const config = require('./config.json');
 const app = express();
+const port = process.env.PORT || config.port;
 
 // logger
 app.use(morgan('dev'));
@@ -28,7 +29,7 @@ app.use('/api/poll/up', poll_up);
 app.use('/api/poll/create', poll_new);
 
 
-app.listen(config.port);
-console.log(`Started on port ${app.address}`);
+app.listen(port);
+console.log(`Started on port ${port}`);
 
 module.exports = app;

@@ -5,12 +5,13 @@
   "main": "dist",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "test": "mocha"
+    "test": "nodemon ./node_modules/.bin/mocha"
   },
   "repository": "deepak-jacob/online-poll",
   "author": "Deepak Jacob <jacob.deepak@yahoo.com>",
   "license": "MIT",
   "dependencies": {
+    "async": "^2.4.0",
     "bluebird": "^3.5.0",
     "body-parser": "^1.13.3",
     "compression": "^1.5.2",

@@ -4,7 +4,7 @@ const Sequelize = require('sequelize');
 const config = require('../config.json');
 
 const db = {};
-const sequelize = new Sequelize(config.connectionString);
+const sequelize = new Sequelize(config.connectionString, { logging: false });
 
 fs
   .readdirSync(__dirname)

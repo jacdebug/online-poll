@@ -42,7 +42,7 @@ router.post('/', function(req, res) {
       });
 
     }).catch(err => {
-      res.json({
+      res.status(403).json({
         statusText: 'fail',
         err: err
       });
