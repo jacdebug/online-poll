@@ -10,7 +10,6 @@
  *
  */
 
-
 const express = require('express');
 const models = require('../models');
 const router = express.Router();
@@ -18,38 +17,33 @@ const sequelize = models.sequelize;
 
 //add new route
 router.post('/', function(req, res) {
-
   sequelize.transaction().then(t => {
 
     getVoter(req.body.email, t)
-      .spread(voter =>  {
-        return getVoterCount(voter.id, req.body.poll_id, t)
-      })
-      .spread(voterCount => {
-        if(voterCount.voted < 3) {
-          getCandidateTotal(req, t)
-            .spread(candidate => updateVote(voterCount, candidate, t))
-            .then(result => {
-                res.status(201).json({
-                  statusText: 'sucess',
-                  result: result
-                });
-                return t.commit();
-              })
-        }
-        else {
+      .spread(voter => [voter, getVoterCount(voter.id, req.body.poll_id, t)])
+      .spread((voter, [voterCount]) => {
+        if(voterCount.voted < 3)
+          return [voter, voterCount, getCandidateTotal(req, t)];
+        else
           throw('Error more than three times voted !!');
-        }
-      }).catch(err => {
+      })
+      .spread((voter, voterCount, [candidate]) => updateVote(voterCount, candidate, t))
+      .then(result => {
+        res.status(201).json({
+          statusText: 'success',
+          result: result
+        });
+        return t.commit();
+      })
+      .catch(error => {
         res.status(403).json({
-          statusText: 'fail',
-          err: err
+          statusText: 'error',
+          result: error
         });
         return t.rollback();
       });
 
-    });
-
+  });
 });
 
 

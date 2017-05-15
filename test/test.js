@@ -1,7 +1,6 @@
 process.env.NODE_ENV = 'test';
 process.env.PORT = '5555';
 
-
 const chai = require('chai');
 const async = require('async');
 const chaiHttp = require('chai-http');
