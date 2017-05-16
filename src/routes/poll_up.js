@@ -17,7 +17,7 @@ const sequelize = models.sequelize;
 
 //add new route
 router.post('/', function(req, res) {
-  sequelize.transaction().then(t => {
+  sequelize.transaction().then(t => { //all in one single transaction
 
     getVoter(req.body.email, t)
       .spread(voter => [voter, getVoterCount(voter.id, req.body.poll_id, t)])
@@ -46,11 +46,7 @@ router.post('/', function(req, res) {
   });
 });
 
-
-
-//helper fucntions
-//TODO: refactor and move to models
-
+//helper fucntions returns all promise
 function getVoter(email, t) {
   return models.voters.findOrCreate({
     where: { email: email },

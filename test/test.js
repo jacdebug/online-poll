@@ -1,6 +1,3 @@
-process.env.NODE_ENV = 'test';
-process.env.PORT = '5555';
-
 const chai = require('chai');
 const async = require('async');
 const chaiHttp = require('chai-http');
@@ -10,8 +7,19 @@ const sequelize = models.sequelize;
 const should = chai.should();
 chai.use(chaiHttp);
 
-// Force sync all models
+// For drop tables and clean start
 //sequelize.sync({force: true})
+
+//For each test case we are creating a new poll,
+//using below setupdata
+const pollSetUpData = {
+  title: 'Poll test - mocha',
+  candidates: [
+    {name: 'A'},
+    {name: 'B'},
+    {name: 'C'},
+    {name: 'D'}
+]};
 
 /**
  *  Scenario: Count Me Up should setup new poll
@@ -20,15 +28,6 @@ chai.use(chaiHttp);
  */
 
 describe('Scenario: Count Me Up should setup new poll', () => {
-
-  const pollSetUpData = {
-    "title": "Poll test A",
-    "candidates": [
-      {"name": "A"},
-      {"name": "B"},
-      {"name": "C"},
-      {"name": "D"}
-  ]};
 
   const setup = chai
     .request(server)
@@ -60,15 +59,6 @@ describe('Scenario: Count Me Up should setup new poll', () => {
 
 describe('Scenario: Count Me Up accepts a vote', () => {
 
-  const pollSetUpData = {
-    "title": "Poll test A",
-    "candidates": [
-      {"name": "A"},
-      {"name": "B"},
-      {"name": "C"},
-      {"name": "D"}
-  ]};
-
   it('Then I register that vote and return a 201 response', (done) => {
 
     async.waterfall([cb => {
@@ -87,9 +77,9 @@ describe('Scenario: Count Me Up accepts a vote', () => {
         .request(server)
         .post('/api/poll/up')
         .send({
-          "poll_id" : body.result.id,
-          "candidate_id": body.candidatesIds[0],
-          "email": "first@test.com"
+          poll_id : body.result.id,
+          candidate_id: body.candidatesIds[0],
+          email: 'chai@mocha.dev'
         })
         .end((err, res) => {
           res.should.have.status(201);
@@ -115,23 +105,14 @@ describe('Scenario: Count Me Up accepts a vote', () => {
 
 describe('Scenario: Count Me Up only accepts 3 votes per user', () => {
 
-  const pollSetUpData = {
-    "title": "Poll test A",
-    "candidates": [
-      {"name": "A"},
-      {"name": "B"},
-      {"name": "C"},
-      {"name": "D"}
-  ]};
-
   const vote = (body, cb) => {
     chai
       .request(server)
       .post('/api/poll/up')
       .send({
-        "poll_id" : body.result.id,
-        "candidate_id": body.candidatesIds[0],
-        "email": "first@test.com"
+        poll_id : body.result.id,
+        candidate_id: body.candidatesIds[0],
+        email: 'chai@mocha.dev'
       })
       .end(() => {
         cb(null, body);
@@ -160,9 +141,9 @@ describe('Scenario: Count Me Up only accepts 3 votes per user', () => {
         .request(server)
         .post('/api/poll/up')
         .send({
-          "poll_id" : body.result.id,
-          "candidate_id": body.candidatesIds[0],
-          "email": "first@test.com"
+          poll_id : body.result.id,
+          candidate_id: body.candidatesIds[0],
+          email: 'chai@mocha.dev'
         })
         .end((err, res) => {
           res.should.have.status(403);
@@ -190,23 +171,14 @@ describe('Scenario: Count Me Up only accepts 3 votes per user', () => {
 
 describe('Scenario: Count Me Up only accepts 3 votes per user regardless of candidate', () => {
 
-  const pollSetUpData = {
-    "title": "Poll test A",
-    "candidates": [
-      {"name": "A"},
-      {"name": "B"},
-      {"name": "C"},
-      {"name": "D"}
-  ]};
-
   const vote = index => (body, cb) => {
     chai
       .request(server)
       .post('/api/poll/up')
       .send({
-        "poll_id" : body.result.id,
-        "candidate_id": body.candidatesIds[index],
-        "email": "first@test.com"
+        poll_id : body.result.id,
+        candidate_id: body.candidatesIds[index],
+        email: 'chai@mocha.dev'
       })
       .end(() => {
         cb(null, body);
@@ -235,9 +207,9 @@ describe('Scenario: Count Me Up only accepts 3 votes per user regardless of cand
         .request(server)
         .post('/api/poll/up')
         .send({
-          "poll_id" : body.result.id,
-          "candidate_id": body.candidatesIds[0],
-          "email": "first@test.com"
+          poll_id : body.result.id,
+          candidate_id: body.candidatesIds[0],
+          email: 'chai@mocha.dev'
         })
         .end((err, res) => {
           res.should.have.status(403);
@@ -269,21 +241,80 @@ describe('Scenario: Count Me Up only accepts 3 votes per user regardless of cand
  *
  */
 
-
-
 describe('Scenario: Count Me Up returns the voting results', () => {
 
-  const setup = chai
-    .request(server)
-    .get('/api/poll/1')
-
-  const successResponseTest = (done) => (err, res) => {
-    res.body.should.be.a('array');
-    if(done) done();
-  }
+  const NO_OF_REQ = 15;
 
   it('Should retrun poll data', (done) => {
-    setup.end(successResponseTest(done));
+
+    async.waterfall([cb => { //create new poll
+      chai
+        .request(server)
+        .post('/api/poll/create')
+        .send(pollSetUpData)
+        .end((err, res) => {
+          cb(null, res.body)
+        });
+    },
+
+    (body, cb) => {
+
+      //req array
+      const requests = [];
+
+      const vote = (payload) =>
+        chai
+          .request(server)
+          .post('/api/poll/up')
+          .send(payload);
+
+      //crate a random email for each request
+      const randomEmail = () => {
+        const chars = 'abcdefghijklmnopqrstuvwxyz1234567890_';
+        let string = '';
+        for(let i=0; i<15; i++) {
+          string += chars[Math.floor(Math.random() * chars.length)];
+        }
+        return `${string}@loadtest.dev`;
+      }
+
+      //create n promise
+      for(let i = 0; i < NO_OF_REQ; i++) {
+        const cid = Math.floor(Math.random() * 4);
+        const req = vote({
+          poll_id : body.result.id,
+          candidate_id: body.candidatesIds[cid],
+          email: randomEmail()
+        });
+        requests.push(req);
+      }
+
+      //callback after req completed
+      Promise.all(requests).then(() => cb(null, body));
+
+    },
+
+    (body) => {
+
+      chai
+        .request(server)
+        .get(`/api/poll/${body.result.id}`)
+        .end((err, res) => {
+
+          res.body.should.be.a('array');
+          const t = res.body.reduce((a,b) => ( { total: a.total + b.total } ) );
+          t.total.should.equal(NO_OF_REQ);
+
+          //just to check logs
+          console.log(`Total votes: ${t.total}`);
+          console.log(['Candidates Id, Total']);
+          console.log(res.body.map(ele => `${ele.candidates_id} - ${ele.total}`));
+
+          if(done) done();
+        });
+
+    }]);
+
   });
 
 });

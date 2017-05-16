@@ -28,7 +28,6 @@ app.use('/api/voter', voter);
 app.use('/api/poll/up', poll_up);
 app.use('/api/poll/create', poll_new);
 
-
 app.listen(port);
 console.log(`Started on port ${port}`);
 

@@ -17,8 +17,6 @@ router.get('/:id', (req, res) => {
   });
 });
 
-
-
 router.post('/', (req, res) => {
   models.polls.create({
     title: req.body.title

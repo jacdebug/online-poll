@@ -2,27 +2,24 @@
   "name": "online-poll",
   "version": "0.1.0",
   "description": "Online poll application",
-  "main": "dist",
+  "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon src/index.js",
-    "test": "nodemon ./node_modules/.bin/mocha"
+    "start": "node src/index.js",
+    "test": "PORT=5555 mocha",
+    "dev": "PORT=5000 nodemon src/index.js",
+    "tdd": "PORT=5556 nodemon ./node_modules/.bin/mocha"
   },
   "repository": "deepak-jacob/online-poll",
   "author": "Deepak Jacob <jacob.deepak@yahoo.com>",
   "license": "MIT",
   "dependencies": {
     "async": "^2.4.0",
-    "bluebird": "^3.5.0",
     "body-parser": "^1.13.3",
-    "compression": "^1.5.2",
     "cors": "^2.7.1",
     "express": "^4.13.3",
     "morgan": "^1.8.0",
     "mysql": "^2.13.0",
-    "mysql2": "^1.2.0",
-    "resource-router-middleware": "^0.6.0",
-    "sequelize": "^3.30.4",
-    "sequelize-cli": "^2.7.0"
+    "sequelize": "^3.30.4"
   },
   "devDependencies": {
     "chai": "^3.5.0",
