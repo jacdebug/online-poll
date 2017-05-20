@@ -2,5 +2,6 @@
   "port": 8080,
   "bodyLimit": "100kb",
   "corsHeaders": ["Link"],
-  "connectionString": "mysql://root:@localhost:3306/online-poll"
+  "connectionString": "mysql://root:@localhost:3306/online-poll",
+  "maxVoteLimit": 3
 }
