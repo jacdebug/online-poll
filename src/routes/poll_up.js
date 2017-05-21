@@ -14,6 +14,8 @@ const express = require('express');
 const models = require('../models');
 const router = express.Router();
 const sequelize = models.sequelize;
+const config = require('../config.json');
+
 
 //add new route
 router.post('/', function(req, res) {
@@ -22,7 +24,7 @@ router.post('/', function(req, res) {
     getVoter(req.body.email, t)
       .spread(voter => [voter, getVoterCount(voter.id, req.body.poll_id, t)])
       .spread((voter, [voterCount]) => {
-        if(voterCount.voted < 3)
+        if(voterCount.voted < config.maxVoteLimit)
           return [voter, voterCount, getCandidateTotal(req, t)];
         else
           throw('Error more than three times voted !!');
