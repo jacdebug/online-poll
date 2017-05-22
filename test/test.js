@@ -3,6 +3,7 @@ const async = require('async');
 const chaiHttp = require('chai-http');
 const server = require('../src');
 const models = require('../src/models');
+const config = require('../src/config.json');
 const sequelize = models.sequelize;
 const should = chai.should();
 chai.use(chaiHttp);
